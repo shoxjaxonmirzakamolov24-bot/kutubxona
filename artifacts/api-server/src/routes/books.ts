@@ -3,7 +3,7 @@ import { db, booksTable } from "@workspace/db";
 import { eq, ilike, and, sql } from "drizzle-orm";
 import multer from "multer";
 import { join, extname } from "path";
-import { mkdirSync } from "fs";
+import { mkdirSync, readFileSync } from "fs";
 import { randomUUID } from "crypto";
 import {
   GetBooksResponse,
@@ -13,6 +13,7 @@ import {
 } from "@workspace/api-zod";
 import { requireAuth, requireAdmin, type AuthRequest } from "../lib/auth";
 import { createReadStream, existsSync } from "fs";
+import mammoth from "mammoth";
 
 const UPLOAD_DIR = join(process.cwd(), "uploads");
 mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -100,6 +101,43 @@ router.get("/books/:id", requireAuth, async (req: AuthRequest, res): Promise<voi
     pageCount: book.pageCount ?? null,
     createdAt: book.createdAt.toISOString(),
   }));
+});
+
+router.get("/books/:id/content", requireAuth, async (req: AuthRequest, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(raw, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid book ID" });
+    return;
+  }
+
+  const [book] = await db.select().from(booksTable).where(eq(booksTable.id, id));
+  if (!book) {
+    res.status(404).json({ error: "Book not found" });
+    return;
+  }
+
+  const filename = book.fileUrl.replace("/api/files/", "");
+  const filePath = join(UPLOAD_DIR, filename);
+
+  if (!existsSync(filePath)) {
+    res.json({ content: null, fileType: book.fileType });
+    return;
+  }
+
+  try {
+    if (book.fileType === "txt") {
+      const text = readFileSync(filePath, "utf-8");
+      res.json({ content: text, fileType: "txt" });
+    } else if (book.fileType === "docx") {
+      const result = await mammoth.extractRawText({ path: filePath });
+      res.json({ content: result.value, fileType: "docx" });
+    } else {
+      res.json({ content: null, fileType: book.fileType });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Failed to extract content" });
+  }
 });
 
 router.post("/books/upload", requireAdmin, upload.single("file"), async (req: AuthRequest, res): Promise<void> => {

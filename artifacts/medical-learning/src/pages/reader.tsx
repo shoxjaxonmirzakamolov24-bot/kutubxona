@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout";
 import { useGetBook, useCreateHighlight } from "@workspace/api-client-react";
 import { AiPanel } from "@/components/ai-panel";
 import { Loader2, ArrowLeft, Brain, Highlighter, LayoutList } from "lucide-react";
+import { getAuthToken } from "@/lib/utils";
 // react-pdf setup
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -16,15 +17,30 @@ export default function Reader() {
   const bookId = parseInt(id || "0");
   const { data: book, isLoading } = useGetBook(bookId);
   const createHighlightMut = useCreateHighlight();
-  
+
   const [numPages, setNumPages] = useState<number>();
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const [textContent, setTextContent] = useState<string | null>(null);
+  const [contentLoading, setContentLoading] = useState(false);
   
   // Selection state
   const [selectionText, setSelectionText] = useState("");
   const [popoverPos, setPopoverPos] = useState({ x: 0, y: 0, show: false });
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Fetch extracted text for DOCX/TXT files
+  useEffect(() => {
+    if (!book || book.fileType === "pdf") return;
+    setContentLoading(true);
+    fetch(`/api/books/${book.id}/content`, {
+      headers: { Authorization: `Bearer ${getAuthToken()}` }
+    })
+      .then(r => r.json())
+      .then(data => setTextContent(data.content || null))
+      .catch(() => setTextContent(null))
+      .finally(() => setContentLoading(false));
+  }, [book?.id, book?.fileType]);
 
   useEffect(() => {
     const handleMouseUp = (e: MouseEvent) => {
@@ -157,14 +173,20 @@ export default function Reader() {
               </div>
             ) : (
               <div className="bg-white p-8 md:p-12 rounded-2xl shadow-xl border border-border max-w-4xl w-full prose prose-teal prose-lg">
-                {/* Fallback for non-pdf in MVP */}
-                <div className="p-8 bg-amber-50 border border-amber-200 rounded-xl mb-8">
-                  <p className="text-amber-800 m-0">DOCX/TXT hujjati ko'rinishi. Quyidagi namuna matni ustida AI funksiyalarini sinab ko'ring — matnni tanlang va belgilash yoki AI bilan ishlash imkoniyatiga ega bo'ling.</p>
-                </div>
-                <h2>1-bob: Klinik anatomiyaga kirish</h2>
-                <p>Klinik anatomiya — anatomik bilimlarni tashxis va davolashga amaliy tatbiq etish fani. U tibbiyot va boshqa sog'liqni saqlash fanlari bilan bevosita bog'liq holda tananing tuzilishi va funksiyalarini o'rganadi.</p>
-                <p>Bu matnni belgilab ko'ring — AI yordamchi paneli avtomatik ravishda ochiladi. AI tanlangan matnni o'zbek tilida tushuntirishi, xulosa chiqarishi yoki test savollari yaratishi mumkin.</p>
-                <p>Inson tanasi bir nechta tizimlardan iborat: yurak-qon tomir tizimi, nafas olish tizimi, asab tizimi va tayanch-harakat tizimi. Har bir tizim o'z funksiyasiga ega bo'lsa-da, ular birgalikda sinergik tarzda ishlaydi.</p>
+                {contentLoading ? (
+                  <div className="flex flex-col items-center gap-4 py-20">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <p className="text-muted-foreground m-0">Hujjat yuklanmoqda...</p>
+                  </div>
+                ) : textContent ? (
+                  <div className="whitespace-pre-wrap leading-relaxed text-foreground font-sans text-base">
+                    {textContent}
+                  </div>
+                ) : (
+                  <div className="p-8 bg-amber-50 border border-amber-200 rounded-xl text-center">
+                    <p className="text-amber-800 m-0">Hujjat matnini yuklashda xatolik yuz berdi yoki fayl topilmadi.</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
