@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Brain, CheckSquare, List, AlignLeft, Save, Copy, Loader2, Highlighter } from "lucide-react";
-import { 
-  useExplainText, 
-  useGenerateTest, 
-  useGenerateNotes, 
+import { X, Brain, CheckSquare, List, AlignLeft, Save, Copy, Loader2, Highlighter, CheckCircle } from "lucide-react";
+import {
+  useExplainText,
+  useGenerateTest,
+  useGenerateNotes,
   useSummarizeText,
   useCreateNote,
   McqQuestion
@@ -25,20 +25,22 @@ export function AiPanel({ isOpen, onClose, selectedText, bookId }: AiPanelProps)
   const [resultText, setResultText] = useState<string>("");
   const [testQuestions, setTestQuestions] = useState<McqQuestion[]>([]);
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
-  
+  const [saved, setSaved] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   const explainMut = useExplainText();
   const testMut = useGenerateTest();
   const notesMut = useGenerateNotes();
   const summaryMut = useSummarizeText();
   const saveNoteMut = useCreateNote();
 
-  // Reset when text changes
   useEffect(() => {
     if (isOpen && selectedText) {
       setActiveTab(null);
       setResultText("");
       setTestQuestions([]);
       setUserAnswers({});
+      setSaved(false);
     }
   }, [selectedText, isOpen]);
 
@@ -48,7 +50,8 @@ export function AiPanel({ isOpen, onClose, selectedText, bookId }: AiPanelProps)
     setActiveTab(action);
     setResultText("");
     setTestQuestions([]);
-    
+    setSaved(false);
+
     const payload = { data: { text: selectedText, bookId } };
 
     if (action === "explain") {
@@ -62,17 +65,24 @@ export function AiPanel({ isOpen, onClose, selectedText, bookId }: AiPanelProps)
     }
   };
 
+  const actionTitles: Record<string, string> = {
+    explain: "Tushuntirish",
+    test: "Test",
+    notes: "Eslatmalar",
+    summary: "Xulosa"
+  };
+
   const handleSaveNote = () => {
     if (!resultText && testQuestions.length === 0) return;
-    
+
     let content = resultText;
     if (activeTab === "test" && testQuestions.length > 0) {
-      content = testQuestions.map((q, i) => `**Q${i+1}: ${q.question}**\n- A: ${q.options[0]}\n- B: ${q.options[1]}\n- C: ${q.options[2]}\n- D: ${q.options[3]}\n\n*Answer: ${q.options[q.correctIndex]}*`).join('\n\n');
+      content = testQuestions.map((q, i) => `**S${i+1}: ${q.question}**\n- A: ${q.options[0]}\n- B: ${q.options[1]}\n- C: ${q.options[2]}\n- D: ${q.options[3]}\n\n*Javob: ${q.options[q.correctIndex]}*`).join('\n\n');
     }
 
     saveNoteMut.mutate({
       data: {
-        title: `${activeTab?.charAt(0).toUpperCase()}${activeTab?.slice(1)} - ${new Date().toLocaleDateString()}`,
+        title: `${actionTitles[activeTab!] || activeTab} - ${new Date().toLocaleDateString("uz-UZ")}`,
         content,
         sourceText: selectedText,
         bookId,
@@ -80,20 +90,23 @@ export function AiPanel({ isOpen, onClose, selectedText, bookId }: AiPanelProps)
       }
     }, {
       onSuccess: () => {
-        alert("Note saved successfully!");
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
       }
     });
   };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(resultText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -112,7 +125,7 @@ export function AiPanel({ isOpen, onClose, selectedText, bookId }: AiPanelProps)
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                   <Brain className="w-5 h-5 text-primary" />
                 </div>
-                <h2 className="font-display font-bold text-lg">AI Assistant</h2>
+                <h2 className="font-display font-bold text-lg">AI Yordamchi</h2>
               </div>
               <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-full transition-colors">
                 <X className="w-5 h-5" />
@@ -120,83 +133,104 @@ export function AiPanel({ isOpen, onClose, selectedText, bookId }: AiPanelProps)
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
-              {/* Selected Text Preview */}
+              {/* Tanlangan matn ko'rinishi */}
               <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
                 <p className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-1">
-                  <Highlighter className="w-3 h-3" /> Selected Text
+                  <Highlighter className="w-3 h-3" /> Tanlangan matn
                 </p>
                 <p className="text-sm text-amber-900/80 italic line-clamp-4">"{selectedText}"</p>
               </div>
 
-              {/* Action Buttons */}
+              {/* Amal tugmalari */}
               <div className="grid grid-cols-2 gap-2">
-                <Button 
-                  size="sm" 
-                  variant={activeTab === "explain" ? "primary" : "secondary"} 
+                <Button
+                  size="sm"
+                  variant={activeTab === "explain" ? "primary" : "secondary"}
                   leftIcon={<Brain className="w-4 h-4" />}
                   onClick={() => handleAction("explain")}
                   disabled={isProcessing}
                 >
-                  Explain (UZ)
+                  Tushuntirish
                 </Button>
-                <Button 
-                  size="sm" 
-                  variant={activeTab === "test" ? "primary" : "secondary"} 
+                <Button
+                  size="sm"
+                  variant={activeTab === "test" ? "primary" : "secondary"}
                   leftIcon={<CheckSquare className="w-4 h-4" />}
                   onClick={() => handleAction("test")}
                   disabled={isProcessing}
                 >
-                  Create MCQ
+                  Test yaratish
                 </Button>
-                <Button 
-                  size="sm" 
-                  variant={activeTab === "notes" ? "primary" : "secondary"} 
+                <Button
+                  size="sm"
+                  variant={activeTab === "notes" ? "primary" : "secondary"}
                   leftIcon={<List className="w-4 h-4" />}
                   onClick={() => handleAction("notes")}
                   disabled={isProcessing}
                 >
-                  To Notes
+                  Eslatmaga
                 </Button>
-                <Button 
-                  size="sm" 
-                  variant={activeTab === "summary" ? "primary" : "secondary"} 
+                <Button
+                  size="sm"
+                  variant={activeTab === "summary" ? "primary" : "secondary"}
                   leftIcon={<AlignLeft className="w-4 h-4" />}
                   onClick={() => handleAction("summary")}
                   disabled={isProcessing}
                 >
-                  Summarize
+                  Xulosa
                 </Button>
               </div>
 
-              {/* Processing State */}
+              {/* Yuklanish holati */}
               {isProcessing && (
                 <div className="flex-1 flex flex-col items-center justify-center py-12 text-primary">
                   <Loader2 className="w-10 h-10 animate-spin mb-4" />
-                  <p className="font-medium animate-pulse">Processing clinical text...</p>
+                  <p className="font-medium animate-pulse">Tibbiy matn tahlil qilinmoqda...</p>
                 </div>
               )}
 
-              {/* Results Area */}
+              {/* Natijalar */}
               {!isProcessing && activeTab && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex-1 flex flex-col bg-white rounded-xl border border-border shadow-sm overflow-hidden"
                 >
                   <div className="bg-sidebar px-4 py-2 border-b flex items-center justify-between">
-                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Result</span>
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Natija</span>
                     <div className="flex gap-1">
                       {resultText && (
-                        <button onClick={copyToClipboard} className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Copy">
-                          <Copy className="w-4 h-4" />
+                        <button
+                          onClick={copyToClipboard}
+                          className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                          title="Nusxa olish"
+                        >
+                          {copied ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                         </button>
                       )}
-                      <button onClick={handleSaveNote} disabled={saveNoteMut.isPending} className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors" title="Save to Notes">
-                        {saveNoteMut.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                      <button
+                        onClick={handleSaveNote}
+                        disabled={saveNoteMut.isPending}
+                        className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors"
+                        title="Eslatmalarga saqlash"
+                      >
+                        {saveNoteMut.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : saved ? (
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <Save className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   </div>
-                  
+
+                  {saved && (
+                    <div className="bg-green-50 border-b border-green-100 px-4 py-2 text-xs text-green-700 font-medium flex items-center gap-1.5">
+                      <CheckCircle className="w-3.5 h-3.5" /> Eslatmaga muvaffaqiyatli saqlandi!
+                    </div>
+                  )}
+
                   <div className="p-4 overflow-y-auto max-h-[50vh] prose prose-sm prose-teal max-w-none">
                     {activeTab !== "test" && resultText && (
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{resultText}</ReactMarkdown>
@@ -212,7 +246,7 @@ export function AiPanel({ isOpen, onClose, selectedText, bookId }: AiPanelProps)
                                 const isSelected = userAnswers[qIndex] === oIndex;
                                 const showCorrect = userAnswers[qIndex] !== undefined;
                                 const isCorrect = q.correctIndex === oIndex;
-                                
+
                                 let btnClass = "border-slate-200 hover:border-primary hover:bg-primary/5 text-slate-700";
                                 if (showCorrect) {
                                   if (isCorrect) btnClass = "bg-emerald-100 border-emerald-300 text-emerald-800 font-medium";
@@ -234,7 +268,7 @@ export function AiPanel({ isOpen, onClose, selectedText, bookId }: AiPanelProps)
                             </div>
                             {userAnswers[qIndex] !== undefined && q.explanation && (
                               <div className="mt-3 text-xs bg-white p-3 rounded-lg border border-slate-200 text-slate-600">
-                                <span className="font-bold text-primary">Explanation:</span> {q.explanation}
+                                <span className="font-bold text-primary">Izoh:</span> {q.explanation}
                               </div>
                             )}
                           </div>

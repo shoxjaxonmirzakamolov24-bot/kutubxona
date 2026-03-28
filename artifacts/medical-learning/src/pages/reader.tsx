@@ -89,7 +89,7 @@ export default function Reader() {
   if (!book) {
     return (
       <Layout>
-        <div className="p-8">Book not found.</div>
+        <div className="p-8">Kitob topilmadi.</div>
       </Layout>
     );
   }
@@ -128,7 +128,7 @@ export default function Reader() {
                   onClick={() => setPageNumber(p => p - 1)}
                   className="px-2 font-medium hover:text-primary disabled:opacity-50"
                 >-</button>
-                <span className="text-sm font-semibold">Page {pageNumber} of {numPages}</span>
+                <span className="text-sm font-semibold">{pageNumber} / {numPages} sahifa</span>
                 <button 
                   disabled={pageNumber >= numPages}
                   onClick={() => setPageNumber(p => p + 1)}
@@ -145,7 +145,7 @@ export default function Reader() {
                 <Document
                   file={book.fileUrl}
                   onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                  loading={<div className="p-20 flex flex-col items-center"><Loader2 className="w-8 h-8 animate-spin text-primary mb-4" /> Loading PDF...</div>}
+                  loading={<div className="p-20 flex flex-col items-center"><Loader2 className="w-8 h-8 animate-spin text-primary mb-4" /> PDF yuklanmoqda...</div>}
                 >
                   <Page 
                     pageNumber={pageNumber} 
@@ -160,12 +160,12 @@ export default function Reader() {
               <div className="bg-white p-8 md:p-12 rounded-2xl shadow-xl border border-border max-w-4xl w-full prose prose-teal prose-lg">
                 {/* Fallback for non-pdf in MVP */}
                 <div className="p-8 bg-amber-50 border border-amber-200 rounded-xl mb-8">
-                  <p className="text-amber-800 m-0">Non-PDF content preview. In a full implementation, the actual text content of DOCX/TXT would be rendered here.</p>
+                  <p className="text-amber-800 m-0">DOCX/TXT hujjati ko'rinishi. Quyidagi namuna matni ustida AI funksiyalarini sinab ko'ring — matnni tanlang va belgilash yoki AI bilan ishlash imkoniyatiga ega bo'ling.</p>
                 </div>
-                <h2>Chapter 1: Introduction to Clinical Anatomy</h2>
-                <p>Clinical anatomy is the practical application of anatomical knowledge to diagnosis and treatment. It highlights the structure and function of the body, specifically as it relates to the practice of medicine and other health sciences.</p>
-                <p>Try highlighting this text to see the AI integration tools appear. The AI can summarize, explain in simple terms, or generate test questions based on the selected passage.</p>
-                <p>The human body consists of various systems, including the cardiovascular system, respiratory system, nervous system, and musculoskeletal system. Each system has a specific function but they all work synergistically.</p>
+                <h2>1-bob: Klinik anatomiyaga kirish</h2>
+                <p>Klinik anatomiya — anatomik bilimlarni tashxis va davolashga amaliy tatbiq etish fani. U tibbiyot va boshqa sog'liqni saqlash fanlari bilan bevosita bog'liq holda tananing tuzilishi va funksiyalarini o'rganadi.</p>
+                <p>Bu matnni belgilab ko'ring — AI yordamchi paneli avtomatik ravishda ochiladi. AI tanlangan matnni o'zbek tilida tushuntirishi, xulosa chiqarishi yoki test savollari yaratishi mumkin.</p>
+                <p>Inson tanasi bir nechta tizimlardan iborat: yurak-qon tomir tizimi, nafas olish tizimi, asab tizimi va tayanch-harakat tizimi. Har bir tizim o'z funksiyasiga ega bo'lsa-da, ular birgalikda sinergik tarzda ishlaydi.</p>
               </div>
             )}
           </div>
@@ -186,16 +186,16 @@ export default function Reader() {
                 className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/20 rounded-lg transition-colors text-sm font-semibold whitespace-nowrap"
               >
                 <Brain className="w-4 h-4 text-emerald-400" />
-                Ask AI
+                AI so'rash
               </button>
               <div className="w-[1px] h-4 bg-white/20 mx-1" />
-              <button 
+              <button
                 onClick={saveHighlight}
                 disabled={createHighlightMut.isPending}
                 className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/20 rounded-lg transition-colors text-sm font-semibold whitespace-nowrap text-teal-300"
               >
                 <Highlighter className="w-4 h-4" />
-                Highlight
+                Belgilash
               </button>
             </motion.div>
           )}

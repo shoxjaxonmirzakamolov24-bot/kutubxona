@@ -1,12 +1,12 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetCurrentUser, useLogout } from "@workspace/api-client-react";
-import { 
-  BookOpen, 
-  Stethoscope, 
-  Highlighter, 
-  History, 
-  Settings, 
+import {
+  BookOpen,
+  Stethoscope,
+  Highlighter,
+  History,
+  Settings,
   LogOut,
   User,
   Activity,
@@ -35,22 +35,21 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background">
         <Activity className="w-12 h-12 text-primary animate-pulse mb-4" />
         <h2 className="text-xl font-display font-semibold text-primary">MedLearn AI</h2>
-        <p className="text-muted-foreground mt-2 text-sm">Loading clinical environment...</p>
+        <p className="text-muted-foreground mt-2 text-sm">Yuklanmoqda...</p>
       </div>
     );
   }
 
-  // Redirect to login if not authenticated
   if (isError || !user) {
     window.location.href = "/login";
     return null;
   }
 
   const navItems = [
-    { href: "/", label: "Library", icon: BookOpen },
-    { href: "/notes", label: "My Notes", icon: Stethoscope },
-    { href: "/highlights", label: "Highlights", icon: Highlighter },
-    { href: "/history", label: "AI History", icon: History },
+    { href: "/", label: "Kutubxona", icon: BookOpen },
+    { href: "/notes", label: "Eslatmalarim", icon: Stethoscope },
+    { href: "/highlights", label: "Belgilanganlar", icon: Highlighter },
+    { href: "/history", label: "AI Tarixi", icon: History },
   ];
 
   if (user.role === "admin") {
@@ -69,7 +68,7 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
         <div>
           <h1 className="font-display font-bold text-xl text-foreground">MedLearn</h1>
-          <p className="text-xs font-medium text-primary">Clinical Intelligence</p>
+          <p className="text-xs font-medium text-primary">Tibbiy Ta'lim AI</p>
         </div>
       </div>
 
@@ -77,13 +76,13 @@ export function Layout({ children }: { children: ReactNode }) {
         {navItems.map((item) => {
           const isActive = location === item.href;
           return (
-            <Link 
-              key={item.href} 
+            <Link
+              key={item.href}
               href={item.href}
               className={`
                 flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200
-                ${isActive 
-                  ? "bg-white text-primary shadow-sm shadow-black/5 border border-border/50" 
+                ${isActive
+                  ? "bg-white text-primary shadow-sm shadow-black/5 border border-border/50"
                   : "text-muted-foreground hover:bg-black/5 hover:text-foreground"}
               `}
               onClick={() => setMobileMenuOpen(false)}
@@ -103,15 +102,15 @@ export function Layout({ children }: { children: ReactNode }) {
             </div>
             <div className="overflow-hidden">
               <p className="text-sm font-bold text-foreground truncate">{user.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{user.role}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.role === "admin" ? "Administrator" : "Talaba"}</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
           >
             <LogOut className="w-4 h-4" />
-            Sign Out
+            Chiqish
           </button>
         </div>
       </div>
@@ -126,7 +125,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <SidebarContent />
       </aside>
 
-      {/* Mobile Header & Menu */}
+      {/* Mobil sarlavha */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-lg border-b z-50 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <Activity className="w-6 h-6 text-primary" />
@@ -139,7 +138,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
@@ -151,7 +150,7 @@ export function Layout({ children }: { children: ReactNode }) {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
+      {/* Asosiy kontent */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden pt-16 md:pt-0 relative">
         <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-[100px] pointer-events-none" />

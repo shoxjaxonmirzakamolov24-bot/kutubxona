@@ -2,16 +2,16 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { Layout } from "@/components/layout";
 import { useGetBooks } from "@workspace/api-client-react";
-import { Card, Badge, Input } from "@/components/ui/beautiful-components";
-import { Search, Filter, BookOpen, FileText, File } from "lucide-react";
+import { Card, Badge } from "@/components/ui/beautiful-components";
+import { Search, Filter, FileText, File } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Library() {
   const [search, setSearch] = useState("");
   const { data: books, isLoading } = useGetBooks();
 
-  const filteredBooks = books?.filter(b => 
-    b.title.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredBooks = books?.filter(b =>
+    b.title.toLowerCase().includes(search.toLowerCase()) ||
     b.category?.toLowerCase().includes(search.toLowerCase()) ||
     b.author?.toLowerCase().includes(search.toLowerCase())
   );
@@ -21,16 +21,16 @@ export default function Library() {
       <div className="p-8 h-full flex flex-col">
         <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">Medical Library</h1>
-            <p className="text-muted-foreground mt-1">Access your textbooks and clinical documents</p>
+            <h1 className="text-3xl font-display font-bold text-foreground">Tibbiy Kutubxona</h1>
+            <p className="text-muted-foreground mt-1">Darsliklar va klinik hujjatlarga kirish</p>
           </div>
-          
+
           <div className="flex gap-3 w-full md:w-auto">
             <div className="relative w-full md:w-72">
               <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <input 
-                type="text" 
-                placeholder="Search books, authors..." 
+              <input
+                type="text"
+                placeholder="Kitob, muallif qidirish..."
                 className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -55,9 +55,9 @@ export default function Library() {
           </div>
         ) : filteredBooks?.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center">
-            <img src={`${import.meta.env.BASE_URL}images/empty-library.png`} alt="Empty Library" className="w-64 h-64 object-contain mb-6 drop-shadow-xl" />
-            <h3 className="text-2xl font-display font-bold text-foreground">No books found</h3>
-            <p className="text-muted-foreground mt-2 max-w-md">Your search didn't match any documents in the library. Try a different term or ask your admin to upload materials.</p>
+            <img src={`${import.meta.env.BASE_URL}images/empty-library.png`} alt="Bo'sh kutubxona" className="w-64 h-64 object-contain mb-6 drop-shadow-xl" />
+            <h3 className="text-2xl font-display font-bold text-foreground">Kitob topilmadi</h3>
+            <p className="text-muted-foreground mt-2 max-w-md">Qidiruvingizga mos hujjat topilmadi. Boshqa so'z bilan qidiring yoki administrator kitob yuklashini so'rang.</p>
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto hide-scrollbar pb-8">
@@ -75,20 +75,20 @@ export default function Library() {
                         {book.fileType.toUpperCase()}
                       </Badge>
                     </div>
-                    
+
                     <div className="w-14 h-14 bg-gradient-to-br from-primary/10 to-accent/10 rounded-xl flex items-center justify-center mb-5 text-primary group-hover:scale-110 transition-transform duration-300">
                       {book.fileType === 'pdf' ? <FileText className="w-7 h-7" /> : <File className="w-7 h-7" />}
                     </div>
-                    
+
                     <h3 className="font-display font-bold text-lg text-foreground line-clamp-2 mb-1">{book.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{book.author || 'Unknown Author'}</p>
-                    
+                    <p className="text-sm text-muted-foreground mb-4">{book.author || 'Noma\'lum muallif'}</p>
+
                     <div className="mt-auto pt-4 flex items-center justify-between border-t border-border/50">
                       <span className="text-xs font-semibold text-primary px-2 py-1 bg-primary/5 rounded-md">
-                        {book.category || 'General'}
+                        {book.category || 'Umumiy'}
                       </span>
                       <Link href={`/books/${book.id}`} className="px-4 py-2 bg-foreground text-background font-semibold text-sm rounded-lg hover:bg-primary transition-colors hover:shadow-lg hover:shadow-primary/30 active:scale-95">
-                        Open Reader
+                        Ochish
                       </Link>
                     </div>
                   </Card>

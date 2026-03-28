@@ -18,6 +18,13 @@ export default function Notes() {
     }
   };
 
+  const actionLabels: Record<string, string> = {
+    explain: "Tushuntirish",
+    test: "Test",
+    summary: "Xulosa",
+    notes: "Eslatmalar"
+  };
+
   const getActionBadge = (action: string | null | undefined) => {
     if (!action) return null;
     const variants: Record<string, "success"|"warning"|"purple"|"default"> = {
@@ -28,7 +35,7 @@ export default function Notes() {
     };
     return (
       <Badge variant={variants[action] || "default"} className="flex items-center gap-1">
-        {getActionIcon(action)} <span className="ml-1">{action}</span>
+        {getActionIcon(action)} <span className="ml-1">{actionLabels[action] || action}</span>
       </Badge>
     );
   };
@@ -37,8 +44,8 @@ export default function Notes() {
     <Layout>
       <div className="p-8 h-full flex flex-col">
         <header className="mb-8">
-          <h1 className="text-3xl font-display font-bold text-foreground">My Notes</h1>
-          <p className="text-muted-foreground mt-1">Saved explanations, summaries, and generated content</p>
+          <h1 className="text-3xl font-display font-bold text-foreground">Eslatmalarim</h1>
+          <p className="text-muted-foreground mt-1">AI yordamida saqlangan tushuntirishlar, xulosalar va testlar</p>
         </header>
 
         {isLoading ? (
@@ -47,9 +54,9 @@ export default function Notes() {
           </div>
         ) : notes?.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center pb-20">
-            <img src={`${import.meta.env.BASE_URL}images/empty-notes.png`} alt="No notes" className="w-64 h-64 object-contain mb-6 drop-shadow-xl" />
-            <h3 className="text-2xl font-display font-bold text-foreground">No notes yet</h3>
-            <p className="text-muted-foreground mt-2 max-w-md">Open a book, highlight some text, and use the AI to generate explanations, summaries, or tests. Save them here for later study.</p>
+            <img src={`${import.meta.env.BASE_URL}images/empty-notes.png`} alt="Eslatmalar yo'q" className="w-64 h-64 object-contain mb-6 drop-shadow-xl" />
+            <h3 className="text-2xl font-display font-bold text-foreground">Hali eslatmalar yo'q</h3>
+            <p className="text-muted-foreground mt-2 max-w-md">Kitob oching, matnni tanlang va AI yordamida tushuntirishlar, xulosalar yoki testlar yarating. Ularni keyinchalik o'rganish uchun bu yerda saqlang.</p>
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto hide-scrollbar pb-8 columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
@@ -63,7 +70,7 @@ export default function Notes() {
                       <span className="text-xs text-muted-foreground">{formatDate(note.createdAt)}</span>
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => deleteMut.mutate({ id: note.id })}
                     disabled={deleteMut.isPending}
                     className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"

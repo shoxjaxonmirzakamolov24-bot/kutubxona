@@ -8,12 +8,12 @@ export default function NotFound() {
       <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mb-6">
         <AlertCircle className="w-10 h-10 text-destructive" />
       </div>
-      <h1 className="text-4xl font-display font-bold text-foreground mb-4">404 - Page Not Found</h1>
+      <h1 className="text-4xl font-display font-bold text-foreground mb-4">404 - Sahifa topilmadi</h1>
       <p className="text-lg text-muted-foreground max-w-md mb-8">
-        The clinical document or interface you are looking for does not exist in this environment.
+        Siz qidirayotgan sahifa yoki hujjat mavjud emas.
       </p>
       <Link href="/">
-        <Button size="lg">Return to Library</Button>
+        <Button size="lg">Kutubxonaga qaytish</Button>
       </Link>
     </div>
   );
