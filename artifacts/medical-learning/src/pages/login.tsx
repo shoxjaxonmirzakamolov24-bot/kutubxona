@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLogin, useRegister } from "@workspace/api-client-react";
 import { setAuthToken } from "@/lib/utils";
-import { Activity, Stethoscope, Mail, Lock, User as UserIcon } from "lucide-react";
+import { Mail, Lock, User as UserIcon } from "lucide-react";
 import { Button, Input } from "@/components/ui/beautiful-components";
 import { motion } from "framer-motion";
 
@@ -42,31 +42,55 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full flex bg-white selection:bg-primary/20">
-      {/* Chap tomon - rasm */}
-      <div className="hidden lg:flex w-1/2 relative bg-sidebar overflow-hidden items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-accent/10" />
+      {/* Chap tomon - KUAF branding */}
+      <div className="hidden lg:flex w-1/2 relative overflow-hidden items-center justify-center bg-gradient-to-br from-[#0a2640] to-[#0d3d6b]">
+        {/* Background image */}
         <img
           src={`${import.meta.env.BASE_URL}images/auth-side.png`}
           alt="Tibbiy"
-          className="absolute inset-0 w-full h-full object-cover opacity-90 mix-blend-multiply"
+          className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-luminosity"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <div className="relative z-10 p-12 text-white max-w-xl mt-auto self-end">
-          <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 border border-white/30">
-            <Stethoscope className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="font-display text-4xl font-bold mb-4">Sun'iy intellekt bilan tibbiy bilimlarni tez o'rganing.</h1>
-          <p className="text-lg text-white/80">Tibbiy darsliklarni yuklang, murakkab mavzularni belgilang va tezkor tushuntirishlar, testlar va tizimli eslatmalar oling.</p>
+
+        {/* Decorative circles */}
+        <div className="absolute top-[-80px] right-[-80px] w-72 h-72 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute bottom-[-60px] left-[-60px] w-56 h-56 rounded-full bg-accent/20 blur-3xl" />
+
+        {/* Main KUAF branding - center */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-12">
+          {/* KUAF logo text */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="mb-8"
+          >
+            <div className="text-[96px] font-black leading-none tracking-widest text-white drop-shadow-2xl select-none"
+              style={{ fontFamily: "'Inter', sans-serif", letterSpacing: "0.18em" }}>
+              KUAF
+            </div>
+            <div className="h-1 bg-gradient-to-r from-transparent via-primary to-transparent rounded-full mt-2 mb-6" />
+            <p className="text-white/80 text-lg font-medium tracking-wide">
+              Qo'qon universiteti Andijon filiali
+            </p>
+          </motion.div>
+
+          {/* Bottom tagline */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="mt-8 text-white/60 text-sm leading-relaxed max-w-xs"
+          >
+            <p>Sun'iy intellekt yordamida tibbiy bilimlarni chuqurlashtiring. Darsliklarni yuklang, matnlarni belgilang va AI tahlilini oling.</p>
+          </motion.div>
         </div>
       </div>
 
       {/* O'ng tomon - forma */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 relative">
-        <div className="absolute top-8 left-8 flex items-center gap-2 lg:hidden">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <Activity className="w-5 h-5 text-white" />
-          </div>
-          <span className="font-display font-bold text-xl text-foreground">MedLearn</span>
+        {/* Mobil logo */}
+        <div className="absolute top-8 left-8 lg:hidden">
+          <span className="font-black text-2xl tracking-widest text-primary" style={{ letterSpacing: "0.18em" }}>KUAF</span>
         </div>
 
         <motion.div
@@ -79,7 +103,7 @@ export default function Login() {
               {isRegister ? "Hisob yaratish" : "Xush kelibsiz"}
             </h2>
             <p className="text-muted-foreground">
-              {isRegister ? "Tibbiy o'quv platformasiga qo'shiling" : "Tibbiy kutubxonangizga kirish"}
+              {isRegister ? "Talabaning AI Kutubxonasiga qo'shiling" : "Talabaning AI Kutubxonasiga kirish"}
             </p>
           </div>
 
@@ -103,7 +127,7 @@ export default function Login() {
               label="Email manzil"
               type="email"
               icon={<Mail className="w-5 h-5" />}
-              placeholder="siz@university.uz"
+              placeholder="siz@gmail.com"
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
@@ -137,12 +161,6 @@ export default function Login() {
                 {isRegister ? "Kirish" : "Ro'yxatdan o'tish"}
               </button>
             </p>
-          </div>
-
-          <div className="mt-6 p-4 bg-primary/5 border border-primary/10 rounded-xl text-xs text-muted-foreground text-center">
-            <strong>Demo hisoblar:</strong><br />
-            Admin: admin@medical.uz / admin123<br />
-            Talaba: student@medical.uz / student123
           </div>
         </motion.div>
       </div>

@@ -21,7 +21,7 @@ export default function Library() {
       <div className="p-8 h-full flex flex-col">
         <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-display font-bold text-foreground">Tibbiy Kutubxona</h1>
+            <h1 className="text-3xl font-display font-bold text-foreground">Talabaning AI Kutubxonasi</h1>
             <p className="text-muted-foreground mt-1">Darsliklar va klinik hujjatlarga kirish</p>
           </div>
 

@@ -34,7 +34,7 @@ export function Layout({ children }: { children: ReactNode }) {
     return (
       <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background">
         <Activity className="w-12 h-12 text-primary animate-pulse mb-4" />
-        <h2 className="text-xl font-display font-semibold text-primary">MedLearn AI</h2>
+        <h2 className="text-xl font-display font-semibold text-primary">KUAF AI Kutubxona</h2>
         <p className="text-muted-foreground mt-2 text-sm">Yuklanmoqda...</p>
       </div>
     );
@@ -67,8 +67,8 @@ export function Layout({ children }: { children: ReactNode }) {
           <Activity className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h1 className="font-display font-bold text-xl text-foreground">MedLearn</h1>
-          <p className="text-xs font-medium text-primary">Tibbiy Ta'lim AI</p>
+          <h1 className="font-display font-bold text-xl text-foreground">KUAF AI</h1>
+          <p className="text-xs font-medium text-primary">Talabaning Kutubxonasi</p>
         </div>
       </div>
 
@@ -129,7 +129,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-lg border-b z-50 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <Activity className="w-6 h-6 text-primary" />
-          <h1 className="font-display font-bold text-lg text-foreground">MedLearn</h1>
+          <h1 className="font-display font-bold text-lg text-foreground">KUAF AI</h1>
         </div>
         <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 bg-primary/10 rounded-lg text-primary">
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
