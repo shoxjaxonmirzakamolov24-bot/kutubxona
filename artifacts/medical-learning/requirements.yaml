@@ -1,0 +1,30 @@
+packages:
+  "react-pdf": "For rendering and viewing PDF books"
+  "react-markdown": "For rendering formatted AI responses"
+  "remark-gfm": "For markdown tables and formatting"
+  "framer-motion": "For premium page transitions and UI animations"
+  "date-fns": "For formatting history and note timestamps"
+  "react-hook-form": "For robust form handling"
+  "@hookform/resolvers": "For validating forms with Zod"
+  "clsx": "For conditional tailwind classes"
+  "tailwind-merge": "For merging tailwind classes"
+
+images:
+  - path: "artifacts/medical-learning/public/images/medical-hero.png"
+    description: "Clean, abstract medical background with soft glowing teal and blue geometric shapes, bright clinical aesthetic, highly polished and professional"
+    aspect_ratio: "16:9"
+  - path: "artifacts/medical-learning/public/images/auth-side.png"
+    description: "High-end 3D illustration of a medical cross and glowing neural network brain intertwining, teal and emerald lighting, glossy medical aesthetic"
+    aspect_ratio: "9:16"
+  - path: "artifacts/medical-learning/public/images/empty-library.png"
+    description: "Beautiful minimal 3D illustration of a floating open textbook with a stethoscope, soft pastel teal colors, empty state illustration"
+    aspect_ratio: "1:1"
+  - path: "artifacts/medical-learning/public/images/empty-notes.png"
+    description: "Beautiful minimal 3D illustration of floating glowing clipboards and a pen, soft pastel teal colors, empty state illustration"
+    aspect_ratio: "1:1"
+
+notes:
+  - Using @workspace/api-client-react for TanStack Query hooks.
+  - Using react-pdf for PDF rendering, assuming standard worker setup.
+  - Wouter used for routing.
+  - Global CSS customized for a premium medical "clinical teal" aesthetic.

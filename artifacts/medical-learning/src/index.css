@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+:root {
+  /* Medical Teal/Blue-Green Palette */
+  --background: 180 20% 99%;
+  --foreground: 200 40% 12%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 200 40% 12%;
+  --card-border: 180 25% 92%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 200 40% 12%;
+  
+  --primary: 173 80% 36%;       /* Clinical Teal */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 180 30% 94%;
+  --secondary-foreground: 173 80% 30%;
+  
+  --muted: 180 20% 96%;
+  --muted-foreground: 200 20% 45%;
+  
+  --accent: 195 80% 50%;        /* Vibrant Blue Accent */
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 350 80% 55%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 180 25% 90%;
+  --input: 180 25% 90%;
+  --ring: 173 80% 36%;
+
+  --sidebar: 180 30% 98%;
+  --sidebar-foreground: 200 40% 15%;
+  --sidebar-border: 180 25% 92%;
+
+  --radius: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground selection:bg-teal-500/30 selection:text-teal-950;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply tracking-tight;
+  }
+}
+
+/* Custom PDF highlighting logic */
+.react-pdf__Page__textContent {
+  @apply selection:bg-amber-300/50 selection:text-transparent;
+}
+
+.react-pdf__Page__canvas {
+  @apply rounded-xl shadow-lg;
+}
+
+/* Hide scrollbars for ultra-clean UI */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Polished scrollbars for the main reading area */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(180 20% 85%);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(180 20% 75%);
+}

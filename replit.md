@@ -1,8 +1,8 @@
-# Workspace
+# Medical Learning Platform
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+A full-stack AI-powered medical learning platform for university students. Students can read medical books (PDF/DOCX/TXT), highlight text, and use AI to explain concepts in Uzbek, generate MCQ tests, create bullet-point notes, and summarize content. Admins can upload and manage books.
 
 ## Stack
 
@@ -10,87 +10,111 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Node.js version**: 24
 - **Package manager**: pnpm
 - **TypeScript version**: 5.9
-- **API framework**: Express 5
+- **Frontend**: React + Vite + Tailwind CSS + Shadcn UI + Framer Motion
+- **Backend**: Express 5 + Node.js
 - **Database**: PostgreSQL + Drizzle ORM
+- **AI**: Google Gemini API (`gemini-2.0-flash`)
+- **Auth**: JWT (jsonwebtoken + bcryptjs)
+- **File Upload**: Multer
+- **PDF Viewer**: react-pdf
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Build**: esbuild
 
 ## Structure
 
 ```text
 artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
+├── artifacts/
+│   ├── api-server/         # Express API server
+│   └── medical-learning/   # React frontend
+├── lib/
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
 │   ├── api-zod/            # Generated Zod schemas from OpenAPI
 │   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+├── scripts/
+│   └── src/seed.ts         # Database seeding script
 ```
 
-## TypeScript & Composite Projects
+## Environment Variables Required
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+- `DATABASE_URL` — PostgreSQL connection string (auto-provisioned by Replit)
+- `SESSION_SECRET` — JWT signing secret (set in Replit secrets)
+- `GEMINI_API_KEY` — Google Gemini API key (must be added by user)
+- `PORT` — Server port (auto-assigned by Replit)
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+## Database Schema
 
-## Root Scripts
+- `users` — Students and admins (role: student|admin)
+- `books` — Uploaded medical books (PDF/DOCX/TXT)
+- `highlights` — Text highlights by users within books
+- `notes` — Saved AI-generated notes
+- `ai_history` — History of AI interactions per user
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+## Default Accounts (from seed)
 
-## Packages
+- **Admin**: `admin@medical.uz` / `admin123`
+- **Student**: `student@medical.uz` / `student123`
 
-### `artifacts/api-server` (`@workspace/api-server`)
+## API Endpoints
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
+### Auth
+- `POST /api/auth/register` — Register student
+- `POST /api/auth/login` — Login
+- `POST /api/auth/logout` — Logout
+- `GET /api/auth/me` — Get current user
 
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+### Books
+- `GET /api/books` — List books (with category/search filters)
+- `GET /api/books/:id` — Get book details
+- `POST /api/books/upload` — Upload book (admin only)
+- `DELETE /api/books/:id` — Delete book (admin only)
+- `POST /api/books/:id/process` — Trigger document processing (admin only)
+- `GET /api/categories` — Get book categories
 
-### `lib/db` (`@workspace/db`)
+### Highlights
+- `GET /api/highlights` — Get user's highlights
+- `POST /api/highlights` — Create highlight
+- `DELETE /api/highlights/:id` — Delete highlight
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+### Notes
+- `GET /api/notes` — Get user's notes
+- `POST /api/notes` — Save note
+- `DELETE /api/notes/:id` — Delete note
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
+### AI
+- `POST /api/ai/explain` — Explain text in Uzbek with examples
+- `POST /api/ai/test` — Generate MCQ test questions
+- `POST /api/ai/notes` — Convert to bullet-point notes
+- `POST /api/ai/summary` — Summarize in 3-5 sentences
+- `GET /api/ai/history` — Get AI interaction history
 
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+## Pages
 
-### `lib/api-spec` (`@workspace/api-spec`)
+- `/login` — Authentication (login + register)
+- `/` — Book library (filtered by category)
+- `/books/:id` — Book reader with PDF viewer + AI panel
+- `/notes` — Saved notes
+- `/highlights` — All highlights
+- `/history` — AI interaction history
+- `/admin` — Admin panel (upload books, manage library)
 
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
+## Running
 
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
+```bash
+# API server dev
+pnpm --filter @workspace/api-server run dev
 
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
+# Frontend dev
+pnpm --filter @workspace/medical-learning run dev
 
-### `lib/api-zod` (`@workspace/api-zod`)
+# Seed database
+pnpm --filter @workspace/scripts run seed
 
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
+# Run codegen after OpenAPI spec changes
+pnpm --filter @workspace/api-spec run codegen
 
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+# Push database schema
+pnpm --filter @workspace/db run push
+```

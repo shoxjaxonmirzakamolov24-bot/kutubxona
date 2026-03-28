@@ -1,22 +1,33 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Medical Learning Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: books
+    description: Book management
+  - name: highlights
+    description: Text highlights
+  - name: notes
+    description: Saved notes
+  - name: ai
+    description: AI-powered features
+  - name: admin
+    description: Admin operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +35,421 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /books:
+    get:
+      operationId: getBooks
+      tags: [books]
+      summary: Get all books
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+
+  /books/{id}:
+    get:
+      operationId: getBook
+      tags: [books]
+      summary: Get a book by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Book details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteBook
+      tags: [admin]
+      summary: Delete a book (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /books/{id}/process:
+    post:
+      operationId: processBook
+      tags: [admin]
+      summary: Trigger document processing (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Processing started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /books/upload:
+    post:
+      operationId: uploadBook
+      tags: [admin]
+      summary: Upload a book (admin only)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadBookRequest"
+      responses:
+        "201":
+          description: Book uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          description: Invalid file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /categories:
+    get:
+      operationId: getCategories
+      tags: [books]
+      summary: Get all categories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  /highlights:
+    get:
+      operationId: getHighlights
+      tags: [highlights]
+      summary: Get highlights for the current user
+      parameters:
+        - name: bookId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of highlights
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Highlight"
+    post:
+      operationId: createHighlight
+      tags: [highlights]
+      summary: Create a highlight
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHighlightRequest"
+      responses:
+        "201":
+          description: Highlight created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Highlight"
+
+  /highlights/{id}:
+    delete:
+      operationId: deleteHighlight
+      tags: [highlights]
+      summary: Delete a highlight
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /notes:
+    get:
+      operationId: getNotes
+      tags: [notes]
+      summary: Get saved notes for the current user
+      responses:
+        "200":
+          description: List of notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Note"
+    post:
+      operationId: createNote
+      tags: [notes]
+      summary: Save a note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNoteRequest"
+      responses:
+        "201":
+          description: Note saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+
+  /notes/{id}:
+    delete:
+      operationId: deleteNote
+      tags: [notes]
+      summary: Delete a note
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /ai/explain:
+    post:
+      operationId: explainText
+      tags: [ai]
+      summary: Explain text in simple Uzbek with examples
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiRequest"
+      responses:
+        "200":
+          description: Explanation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiResponse"
+
+  /ai/test:
+    post:
+      operationId: generateTest
+      tags: [ai]
+      summary: Generate MCQ test questions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiRequest"
+      responses:
+        "200":
+          description: MCQ questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TestResponse"
+
+  /ai/notes:
+    post:
+      operationId: generateNotes
+      tags: [ai]
+      summary: Convert text to bullet-point notes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiRequest"
+      responses:
+        "200":
+          description: Bullet-point notes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiResponse"
+
+  /ai/summary:
+    post:
+      operationId: summarizeText
+      tags: [ai]
+      summary: Summarize text in 3-5 sentences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AiRequest"
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AiResponse"
+
+  /ai/history:
+    get:
+      operationId: getAiHistory
+      tags: [ai]
+      summary: Get AI interaction history for the current user
+      responses:
+        "200":
+          description: AI history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AiHistoryEntry"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +457,243 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+      required: [email, password, name]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required: [user, token]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [student, admin]
+        createdAt:
+          type: string
+      required: [id, email, name, role, createdAt]
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        author:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        fileUrl:
+          type: string
+        fileType:
+          type: string
+          enum: [pdf, docx, txt]
+        processed:
+          type: boolean
+        pageCount:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+      required: [id, title, fileUrl, fileType, processed, createdAt]
+
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+      required: [name, count]
+
+    UploadBookRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        file:
+          type: string
+          format: binary
+      required: [title, file]
+
+    Highlight:
+      type: object
+      properties:
+        id:
+          type: integer
+        bookId:
+          type: integer
+        userId:
+          type: integer
+        selectedText:
+          type: string
+        pageNumber:
+          type: ["integer", "null"]
+        color:
+          type: string
+        createdAt:
+          type: string
+      required: [id, bookId, userId, selectedText, color, createdAt]
+
+    CreateHighlightRequest:
+      type: object
+      properties:
+        bookId:
+          type: integer
+        selectedText:
+          type: string
+        pageNumber:
+          type: ["integer", "null"]
+        color:
+          type: string
+      required: [bookId, selectedText, color]
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+        bookId:
+          type: ["integer", "null"]
+        userId:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        sourceText:
+          type: ["string", "null"]
+        aiAction:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, userId, title, content, createdAt]
+
+    CreateNoteRequest:
+      type: object
+      properties:
+        bookId:
+          type: ["integer", "null"]
+        title:
+          type: string
+        content:
+          type: string
+        sourceText:
+          type: ["string", "null"]
+        aiAction:
+          type: ["string", "null"]
+      required: [title, content]
+
+    AiRequest:
+      type: object
+      properties:
+        text:
+          type: string
+        bookId:
+          type: ["integer", "null"]
+      required: [text]
+
+    AiResponse:
+      type: object
+      properties:
+        result:
+          type: string
+        action:
+          type: string
+      required: [result, action]
+
+    McqQuestion:
+      type: object
+      properties:
+        question:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        correctIndex:
+          type: integer
+        explanation:
+          type: ["string", "null"]
+      required: [question, options, correctIndex]
+
+    TestResponse:
+      type: object
+      properties:
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/McqQuestion"
+        action:
+          type: string
+      required: [questions, action]
+
+    AiHistoryEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        action:
+          type: string
+        inputText:
+          type: string
+        result:
+          type: string
+        bookId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+      required: [id, action, inputText, result, createdAt]
