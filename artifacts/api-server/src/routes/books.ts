@@ -18,7 +18,7 @@ import { objectStorageClient } from "../lib/objectStorage";
 const BUCKET_ID = process.env.DEFAULT_OBJECT_STORAGE_BUCKET_ID || "";
 const useGCS = !!BUCKET_ID;
 
-const UPLOAD_DIR = join(process.cwd(), "uploads");
+const UPLOAD_DIR = process.env.UPLOAD_DIR || join(process.cwd(), "uploads");
 mkdirSync(UPLOAD_DIR, { recursive: true });
 
 function getBucket() {
